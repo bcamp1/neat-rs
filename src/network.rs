@@ -121,8 +121,6 @@ pub struct Network {
     pub nodes: Vec<Node>,
     pub connections: Vec<Connection>,
     pub fitness: f32,
-    pub generation: u32,
-    pub kid: u32,
     pub greatest_id: u32,
     pub greatest_z_index: u32,
 }
@@ -149,7 +147,7 @@ impl fmt::Display for Network {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut display = String::new();
         display += "------------------------\nNETWORK\n";
-        display += format!("FITNESS: {}\nGEN: {}\nKID: {}\n", self.fitness, self.generation, self.kid).as_str();
+        display += format!("FITNESS: {}\n", self.fitness).as_str();
         for node in &self.nodes {
             display += format!("{}\n", node).as_str();
         }
@@ -191,8 +189,6 @@ impl Network {
             nodes: nodes,
             connections: Vec::new(),
             fitness: 0.0,
-            generation: 0,
-            kid: 0,
             greatest_id: greatest_id,
             greatest_z_index: 0,
         }
@@ -487,15 +483,17 @@ impl Network {
 
         // Draw Connections
         for connection in &self.connections {
-            let in_node = &self.nodes[self.get_node_index(connection.in_node)];
-            let out_node = &self.nodes[self.get_node_index(connection.out_node)];
-            let color: (u8, u8, u8, u8) = if connection.weight > 0.0 {
-                (0, 0, (255.0*connection.weight) as u8, 255)
-            } else {
-                ((255.0*connection.weight) as u8, 0, 0, 255)
-            };
-            canvas.thick_line(in_node.graphics_x as i16, in_node.graphics_y as i16, out_node.graphics_x as i16, out_node.graphics_y as i16, 2, color)
-                .expect("Failed to draw connection");
+            if connection.enabled {
+                let in_node = &self.nodes[self.get_node_index(connection.in_node)];
+                let out_node = &self.nodes[self.get_node_index(connection.out_node)];
+                let color: (u8, u8, u8, u8) = if connection.weight > 0.0 {
+                    (0, 0, (255.0*connection.weight) as u8, 255)
+                } else {
+                    ((255.0*connection.weight) as u8, 0, 0, 255)
+                };
+                canvas.thick_line(in_node.graphics_x as i16, in_node.graphics_y as i16, out_node.graphics_x as i16, out_node.graphics_y as i16, 2, color)
+                    .expect("Failed to draw connection");
+            }
         }
 
         for node in &self.nodes{

@@ -46,6 +46,9 @@ pub struct NEAT {
     pub pop: Vec<Network>,
     pub pop_size: u32,
 
+    pub past_pop: Vec<Network>,
+    pub species_list: Vec<Vec<usize>>,
+
     // Mutations
     pub change_weights_chance: f32,
     pub perturb_weights_chance: f32,
@@ -78,6 +81,9 @@ impl NEAT {
             generation: 0,
             pop,
             pop_size,
+
+            past_pop: Vec::new(),
+            species_list: Vec::new(),
 
             // Mutations
             change_weights_chance: 0.8,
