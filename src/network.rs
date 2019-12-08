@@ -10,7 +10,7 @@ use std::cmp::*;
 
 pub fn sigmoid(x: f32) -> f32 {
     let ex = std::f32::consts::E.powf(x);
-    ((ex) / (ex + 1.0))
+    ((ex) / (ex + 1.0)) * 2.0 - 1.0
 }
 
 fn get_node_type_name(node_type: NodeType) -> &'static str {
@@ -442,7 +442,7 @@ impl Network {
             node.value = sigmoid(node.value);
             let node_index = self.get_node_index(node.id);
             self.nodes[node_index].value = node.value;
-            output_values.push(node.value);
+            output_values.push((node.value + 1.0) / 2.0);
         }
         return output_values;
     }
@@ -450,8 +450,8 @@ impl Network {
 
     pub fn draw(&mut self, canvas: &mut WindowCanvas, x: f32, y: f32) {
         let node_size: f32 = 10.0;
-        let network_width: f32 = 1000.0;
-        let node_y_spacing: f32 = 40.0;
+        let network_width: f32 = 500.0;
+        let node_y_spacing: f32 = 80.0;
         let greatest_z = self.greatest_z_index;
         let x_spacing = network_width / (greatest_z as f32 + 1.0);
         let input_nodes = self.filter_nodes(NodeType::Input).clone();

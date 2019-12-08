@@ -28,7 +28,7 @@ fn print_eval_info(mut n: Network) {
 fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
-    let window_size = (1280, 720);
+    let window_size = (1280, 1280);
 
     let window = video_subsystem.window(format!("NEAT").as_str(), window_size.0, window_size.1)
         .position_centered()
@@ -65,7 +65,7 @@ fn main() {
 
         canvas.set_draw_color(Color::from((0, 0, 0)));
         canvas.clear();
-        top.draw(&mut canvas, 100.0, 100.0);
+        top.draw(&mut canvas, 140.0, 100.0);
         canvas.present();
     }
 

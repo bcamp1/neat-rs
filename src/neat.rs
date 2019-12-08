@@ -69,7 +69,8 @@ impl NEAT {
         for _ in 0..pop_size {
             let mut n = Network::new(num_inputs, num_outputs);
             n.mutate_add_connection();
-            n.mutate_add_connection();
+            n.connections[0].weight = 0.0;
+            //n.mutate_add_connection();
             pop.push(n.clone());
         }
 
@@ -81,7 +82,7 @@ impl NEAT {
             // Mutations
             change_weights_chance: 0.8,
             perturb_weights_chance: 0.9,
-            perturb_amount: 0.1,
+            perturb_amount: 0.2,
             add_node_chance: 0.03,
             add_connection_chance: 0.05,
 
@@ -107,7 +108,7 @@ impl NEAT {
         self.pop.sort_by(|a, b| a.partial_cmp(b).unwrap());
       
         // Copy top 50
-        let top_networks = 50;
+        let top_networks = 10;
         for i in 0..top_networks {
             self.pop[(self.pop_size - top_networks + i) as usize] = self.pop[i as usize].clone();            
         }
