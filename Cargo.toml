@@ -1,0 +1,12 @@
+[package]
+name = "neat"
+version = "0.1.0"
+authors = ["Branson Camp <camp.branson@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+rand = "0.7.2"
+
+[dependencies.sdl2]
+version = "0.32.2"
+features = ["gfx", "ttf"]
