@@ -41,13 +41,17 @@ pub fn evaluate_xor(mut n: Network) -> f32 {
     return 1.0 - error;
 }
 
+#[derive(Debug, Clone)]
 pub struct NEAT {
     pub generation: u32,
-    pub pop: Vec<Network>,
     pub pop_size: u32,
 
-    pub past_pop: Vec<Network>,
+    // Population
+    pub pop: Vec<Network>,
     pub species_list: Vec<Vec<usize>>,
+
+    pub past_pop: Vec<Network>,
+    pub past_species_list: Vec<Vec<usize>>,
 
     // Mutations
     pub change_weights_chance: f32,
@@ -69,21 +73,25 @@ impl NEAT {
     pub fn new(num_inputs: u32, num_outputs: u32) -> Self {
         let pop_size = 150;
         let mut pop: Vec<Network> = Vec::new();
+
+        // Initialize population
         for _ in 0..pop_size {
             let mut n = Network::new(num_inputs, num_outputs);
-            n.mutate_add_connection();
-            n.connections[0].weight = 0.0;
+            n.new_connection(1, num_inputs + 1, 0.0);
             //n.mutate_add_connection();
+            //n.connections[0].weight = 0.0;
             pop.push(n.clone());
         }
 
         NEAT {
             generation: 0,
-            pop,
             pop_size,
 
+            pop,
             past_pop: Vec::new(),
-            species_list: Vec::new(),
+
+            species_list: vec!((0..pop_size as usize).collect()),
+            past_species_list: Vec::new(),
 
             // Mutations
             change_weights_chance: 0.8,
@@ -102,9 +110,15 @@ impl NEAT {
         }
     }
 
-    
+    pub fn get_distance(a: &Network, b: &Network) -> f32 {
+        return 0.0;
+    }
 
     pub fn train(&mut self) {
+        // Update Past Population
+        self.past_pop = self.pop.clone();
+        self.past_species_list = self.species_list.clone();
+
         // Evaluate all networks
         for i in 0..self.pop.len() {
             self.pop[i].fitness = evaluate_xor(self.pop[i].clone());
@@ -112,11 +126,19 @@ impl NEAT {
 
         // Sort by Fitness
         self.pop.sort_by(|a, b| a.partial_cmp(b).unwrap());
-      
-        // Copy top 50
-        let top_networks = 10;
-        for i in 0..top_networks {
-            self.pop[(self.pop_size - top_networks + i) as usize] = self.pop[i as usize].clone();            
+
+        // ----- Speciate -----
+        self.species_list = Vec::new();
+        
+        // Select species reps
+        let mut species_reps: Vec<usize> = Vec::new();
+        for i in 0..self.past_species_list.len() {
+            let rep_index: usize = rand::thread_rng().gen_range(0, self.past_species_list[i].len());
+            species_reps.push(self.past_species_list[i][rep_index])
+        }
+
+        for i in 0..20 {
+            self.pop[150 - 20 + i] = self.pop[i].clone();
         }
 
         // Mutations
