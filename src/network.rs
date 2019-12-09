@@ -103,15 +103,15 @@ pub struct Connection {
     pub out_node: u32,
     pub weight: f32,
     pub enabled: bool,
-    pub id: u32,
+    pub inno_number: u32,
 }
 
 impl fmt::Display for Connection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.enabled {
-            write!(f, "-----CONN-----\n#{}\n{} --> {}\nW: {}\n--------------", self.id, self.in_node, self.out_node, self.weight)
+            write!(f, "-----CONN-----\n#{}\n{} --> {}\nW: {}\n--------------", self.inno_number, self.in_node, self.out_node, self.weight)
         } else {
-            write!(f, "-----CONN-----\n#{}\n{} --> {}\nW: {}\nDISABLED\n--------------", self.id, self.in_node, self.out_node, self.weight)
+            write!(f, "-----CONN-----\n#{}\n{} --> {}\nW: {}\nDISABLED\n--------------", self.inno_number, self.in_node, self.out_node, self.weight)
         }
     }
 }
@@ -225,7 +225,7 @@ impl Network {
 
     pub fn get_connection_index(&self, connection_id: u32) -> usize {
         for i in 0..self.connections.len() {
-            if self.connections[i].id == connection_id {
+            if self.connections[i].inno_number == connection_id {
                 return i as usize;
             }
         }
@@ -268,7 +268,7 @@ impl Network {
             out_node: out_node,
             weight: weight,
             enabled: true,
-            id: self.new_id(),
+            inno_number: self.new_id(),
         };
 
         self.connections.push(connection);
@@ -314,7 +314,7 @@ impl Network {
             out_node: new_node_id,
             weight: 1.0,
             enabled: true,
-            id: self.new_id(),
+            inno_number: self.new_id(),
         };
 
         let connection_b = Connection {
@@ -322,7 +322,7 @@ impl Network {
             out_node: connection.out_node,
             weight: connection.weight,
             enabled: true,
-            id: self.new_id(),
+            inno_number: self.new_id(),
         };
 
         // Push new connections
@@ -335,7 +335,7 @@ impl Network {
             let mut selected = false;
             while !selected {
                 let index = rand::thread_rng().gen_range(0, self.connections.len());
-                let id = self.connections[index].id;
+                let id = self.connections[index].inno_number;
                 if self.connections[index].enabled {
                     selected = true;
                     self.new_node(id);
