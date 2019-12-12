@@ -4,26 +4,16 @@ extern crate rand;
 mod network;
 mod neat;
 
+use network::*;
+use neat::*;
+
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::keyboard::KeyboardState;
 use sdl2::keyboard::Scancode;
 use sdl2::mouse::{MouseState};
 use sdl2::pixels::Color;
-use network::*;
-use neat::*;
 use rand::Rng;
-
-
-
-fn print_eval_info(mut n: Network) {
-    println!("----------");
-    println!("0 0 -> {}", n.evaluate(vec!(0.0, 0.0, 1.0))[0]);
-    println!("1 0 -> {}", n.evaluate(vec!(1.0, 0.0, 1.0))[0]);
-    println!("0 1 -> {}", n.evaluate(vec!(0.0, 1.0, 1.0))[0]);
-    println!("1 1 -> {}", n.evaluate(vec!(1.0, 1.0, 1.0))[0]);
-    println!("Fitness: {}", n.fitness);
-}
 
 fn main() {
     let sdl_context = sdl2::init().unwrap();
@@ -42,8 +32,7 @@ fn main() {
 
     let mut event_pump = sdl_context.event_pump().unwrap();
 
-    let mut neat = NEAT::new(3, 1);
-    let iterations = 10000;
+    let mut neat = NEAT::new(50, 3, 1);
 
     'running: loop {
         for event in event_pump.poll_iter() {
@@ -56,16 +45,14 @@ fn main() {
             }
         }
 
-        if neat.generation < iterations {
-            neat.train();
-        }
+        neat.train();
 
-        let mut top = neat.pop[0].clone();
-        print_eval_info(top.clone());
+        let top = &neat.pop[0];
+        println!("{}", top.fitness);
 
         canvas.set_draw_color(Color::from((0, 0, 0)));
         canvas.clear();
-        top.draw(&mut canvas, 140.0, 100.0);
+        top.draw(&mut canvas, 50.0, 50.0, 1280.0, 500.0);
         canvas.present();
     }
 

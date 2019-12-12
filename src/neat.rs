@@ -43,6 +43,10 @@ pub fn evaluate_xor(mut n: Network) -> f32 {
 
 #[derive(Debug, Clone)]
 pub struct NEAT {
+    // Global Inno Number
+    pub global_inno_number: u32,
+
+    // Generation
     pub generation: u32,
     pub pop_size: u32,
 
@@ -70,20 +74,23 @@ pub struct NEAT {
 }
 
 impl NEAT {
-    pub fn new(num_inputs: u32, num_outputs: u32) -> Self {
-        let pop_size = 150;
+    pub fn new(pop_size: u32, num_inputs: u32, num_outputs: u32) -> Self {
         let mut pop: Vec<Network> = Vec::new();
+
 
         // Initialize population
         for _ in 0..pop_size {
+            let mut inno_number: u32 = 0;
             let mut n = Network::new(num_inputs, num_outputs);
-            n.new_connection(1, num_inputs + 1, 0.0);
+            //n.add_link(&mut inno_number, 0, num_inputs as usize + 1, 0.0);
             //n.mutate_add_connection();
             //n.connections[0].weight = 0.0;
             pop.push(n.clone());
         }
 
         NEAT {
+            global_inno_number: 1,
+
             generation: 0,
             pop_size,
 
@@ -96,7 +103,7 @@ impl NEAT {
             // Mutations
             change_weights_chance: 0.8,
             perturb_weights_chance: 0.9,
-            perturb_amount: 0.2,
+            perturb_amount: 0.5,
             add_node_chance: 0.03,
             add_connection_chance: 0.05,
 
@@ -137,8 +144,9 @@ impl NEAT {
             species_reps.push(self.past_species_list[i][rep_index])
         }
 
-        for i in 0..20 {
-            self.pop[150 - 20 + i] = self.pop[i].clone();
+        let elite = 20;
+        for i in 0..elite {
+            self.pop[self.pop_size as usize - elite + i] = self.pop[i].clone();
         }
 
         // Mutations
@@ -146,32 +154,25 @@ impl NEAT {
             // Change weights
             if weighted_bool(self.change_weights_chance) {
                 if weighted_bool(self.perturb_weights_chance) {
-                    for i in 0..network.connections.len() {
+                    for i in 0..network.links.len() {
                         let amount = random() * self.perturb_amount - (0.5 * self.perturb_amount);
-                        network.connections[i].weight += amount;
-                        if network.connections[i].weight < -1.0 {
-                            network.connections[i].weight = -1.0;
-                        }
-
-                        if network.connections[i].weight > 1.0 {
-                            network.connections[i].weight = 1.0;
-                        }
+                        network.links[i].weight += amount;
                     }
                 } else {
                     // Randomize weights
-                    for i in 0..network.connections.len() {
-                        network.connections[i].weight = random() * 2.0 - 1.0;
+                    for i in 0..network.links.len() {
+                        network.links[i].weight = random() * 10.0 - 5.0;
                     }
                 }
             }
 
             // Add node/connection
             if weighted_bool(self.add_node_chance) {
-                network.mutate_add_node();
+                network.add_random_node(&mut self.global_inno_number);
             }
 
             if weighted_bool(self.add_connection_chance) {
-                network.mutate_add_connection();
+                network.add_random_link(&mut self.global_inno_number).expect("No nodes available");
             }
         }
 
